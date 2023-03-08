@@ -7,17 +7,30 @@ function logger(req, res, next) {
 }
 
 async function validateUserId(req, res, next) {
-  const { id } = req.params;
+  try {const { id } = req.params;
   const user = await User.getById(id);
   if (user) {
+    req.user = user;
     next()
   } else {
     next({status: 404, message: "user not found"})
   }
+} catch (err) {
+  next(err)
+}
 }
 
 function validateUser(req, res, next) {
-  // DO YOUR MAGIC
+  const name = req.body.name;
+  if (
+    name !== undefined &&
+    typeof name === 'string' &&
+    name.trim().length
+    ) {
+    next()
+  } else {
+    next({ status: 400, message: 'missing required name field'})
+  }
 }
 
 function validatePost(req, res, next) {
@@ -28,4 +41,6 @@ function validatePost(req, res, next) {
 
 module.exports = {
   logger,
+  validateUserId,
+  validateUser,
 }

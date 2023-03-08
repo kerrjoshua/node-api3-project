@@ -2,6 +2,7 @@ const express = require('express');
 
 const User = require('./users-model');
 const Post = require('../posts/posts-model')
+const { validateUserId, validateUser } = require('../middleware/middleware')
 
 // You will need `users-model.js` and `posts-model.js` both
 // The middleware functions also need to be required
@@ -19,14 +20,18 @@ router.get('/', (req, res, next) => {
     .catch(next)
 });
 
-router.get('/:id', (req, res) => {
-  // RETURN THE USER OBJECT
-  // this needs a middleware to verify user id
+router.get('/:id', validateUserId, (req, res) => {
+  res.json(req.user)
 });
 
-router.post('/', (req, res) => {
-  // RETURN THE NEWLY CREATED USER OBJECT
-  // this needs a middleware to check that the request body is valid
+router.post('/', validateUser, async (req, res, next) => {
+  try {
+    const newUser = await User.insert({ name: req.body.name });
+    res.status(201).json(newUser)
+
+  } catch (err) {
+    next(err)
+  }
 });
 
 router.put('/:id', (req, res) => {
@@ -53,8 +58,8 @@ router.post('/:id/posts', (req, res) => {
 
 router.use((err, req, res, next) => {
   res.status(err.status || 500).json({
-    message: `Something went wrong inside the Users router`,
-    customMessage: err.message
+    message: err.message,
+    customMessage: `Something went wrong inside the Users router`
   });
 })
 
