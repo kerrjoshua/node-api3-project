@@ -7,17 +7,19 @@ function logger(req, res, next) {
 }
 
 async function validateUserId(req, res, next) {
-  try {const { id } = req.params;
-  const user = await User.getById(id);
-  if (user) {
-    req.user = user;
-    next()
-  } else {
-    next({status: 404, message: "user not found"})
+
+  try {
+    const { id } = req.params;
+    const user = await User.getById(id);
+    if (user) {
+      req.user = user;
+      next()
+    } else {
+      next({ status: 404, message: "user not found" })
+    }
+  } catch (err) {
+    next(err)
   }
-} catch (err) {
-  next(err)
-}
 }
 
 function validateUser(req, res, next) {
@@ -26,10 +28,10 @@ function validateUser(req, res, next) {
     name !== undefined &&
     typeof name === 'string' &&
     name.trim().length
-    ) {
+  ) {
     next()
   } else {
-    next({ status: 400, message: 'missing required name field'})
+    next({ status: 400, message: 'missing required name field' })
   }
 }
 
