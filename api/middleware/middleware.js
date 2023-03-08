@@ -1,4 +1,5 @@
 const User = require('../users/users-model')
+const Post = require('../posts/posts-model')
 
 function logger(req, res, next) {
   const date = new Date()
@@ -36,7 +37,17 @@ function validateUser(req, res, next) {
 }
 
 function validatePost(req, res, next) {
-  // DO YOUR MAGIC
+  
+  const text = req.body.text;
+  if (
+    text !== undefined &&
+    typeof text === 'string' &&
+    text.trim().length
+  ) {
+    next()
+  } else {
+    next({ status: 400, message: 'missing required text field' })
+  }
 }
 
 // do not forget to expose these functions to other modules
@@ -45,4 +56,5 @@ module.exports = {
   logger,
   validateUserId,
   validateUser,
+  validatePost,
 }
